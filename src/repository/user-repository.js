@@ -17,6 +17,7 @@ function deepMerge(target, source) {
     return target;
 }
 
+
 class UserRepository {
  
     async getAll(){
@@ -45,33 +46,66 @@ class UserRepository {
         }
     }
 
-    async update( userId , data ){
+    async getBySkillName( userId , skillName ){
         try {
-            const user  = await User.findByPk( userId );
-
-            Object.keys(data).forEach(( field )=>{
-                 if (Array.isArray(user[field]) && Array.isArray(data[field])) {
-                    // merge arrays instead of replacing
-                    user[field] = [...user[field], ...data[field]];
-                } else if (
-                    typeof user[field] === "object" &&
-                    typeof data[field] === "object" &&
-                    !Array.isArray(user[field])
-                ) {
-                    user[field] = deepMerge(user[field], data[field]);
-                } else {
-                    // normal assignment
-                    user[field] = data[field];
-                }
-            })
-
-            await user.save();
-            return user;
+            console.log("skillName" , skillName);
+            const userData = await User.findByPk(userId);
+            const skills = userData.skills || [];
+            console.log("Skills and its datatype" , skills , typeof skills)
+            const skill = skills.find(
+                (s) => s.toLowerCase() === skillName.toLowerCase()
+            );
+            console.log("skill fetched ", skill);
+            return skill || null;
+            
         } catch (error) {
             console.log("Error in Repo file")
-            throw error;
+            throw error
             
         }
+        
+
+    }
+
+    async update( userId , data ){
+       try {
+        const user = await User.findByPk(userId);
+
+        Object.keys(data).forEach((field) => {
+            if (Array.isArray(user[field]) && Array.isArray(data[field])) {
+                if (field === "skills") {
+                    // ✅ merge unique values only for skills
+                    if (data.overwrite && data.overwrite.includes(field)) {
+                        user[field] = data[field];
+                    }else{
+                        const incoming = Array.isArray(data[field]) ? data[field] : [data[field]];
+                        user[field] = Array.from(new Set([...(user[field] || []), ...incoming]));
+                    } 
+
+                } else {
+                    // ✅ normal append for other array fields
+                    user[field] = [...user[field], ...data[field]];
+                }
+            } else if (
+                typeof user[field] === "object" &&
+                typeof data[field] === "object" &&
+                !Array.isArray(user[field])
+            ) {
+                // ✅ deep merge objects
+                user[field] = deepMerge(user[field], data[field]);
+            } else {
+                // ✅ overwrite primitive fields
+                user[field] = data[field];
+            }
+        });
+
+                await user.save();
+                return user;
+        } catch (error) {
+            console.log("Error in Repo file", error);
+            throw error;
+        }
+
     }
 
 }

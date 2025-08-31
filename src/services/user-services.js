@@ -37,6 +37,19 @@ class UserService {
             
         }
     }
+
+    async getBySkill( userId , skillName ){
+        try {
+            const response = await this.userRepoObjec.getBySkillName(userId , skillName);
+            if( !response ){
+                return null;
+            }
+            return response;
+        } catch (error) {
+            console.log("Error in Service file")
+            throw error;
+        }
+    }
 }
 
 module.exports = UserService;
