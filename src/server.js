@@ -8,6 +8,8 @@ dotenv.config();
 const PORT  = process.env.PORT
 const app = express();
 
+const mysql = require('mysql2');
+
 const setupAndStartServer = ()=>{
     app.use(cors({
         origin: "*",
@@ -24,3 +26,4 @@ const setupAndStartServer = ()=>{
 }
 
 setupAndStartServer();
+
