@@ -32,7 +32,7 @@ const fs = require('fs');
 
 // Load config.json
 const env = process.env.NODE_ENV || 'production';
-const config = require(path.resolve(__dirname, 'config', 'config.json'))[env];
+const config = require(path.resolve(__dirname, 'config', 'config.js'))[env];
 
 // Initialize Sequelize
 const sequelize = new Sequelize(
