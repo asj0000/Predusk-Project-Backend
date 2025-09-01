@@ -92,7 +92,7 @@ class UserRepository {
                 !Array.isArray(user[field])
             ) {
                 // ✅ deep merge objects
-                user[field] = deepMerge(user[field], data[field]);
+                user[field] = deepMerge({ ...user[field] }, data[field]);
             } else {
                 // ✅ overwrite primitive fields
                 user[field] = data[field];
